@@ -32,10 +32,22 @@ class UsuarioSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email', 'username']  
 
 class RutinaSerializer(serializers.ModelSerializer):
+    DIA_CHOICES = [
+        ('lunes', 'Lunes'),
+        ('martes', 'Martes'),
+        ('miércoles', 'Miércoles'),
+        ('jueves', 'Jueves'),
+        ('viernes', 'Viernes'),
+        ('sábado', 'Sábado'),
+        ('domingo', 'Domingo'),
+    ]
+
+    dia = serializers.ChoiceField(choices=DIA_CHOICES)
+
     class Meta:
         model = Rutina
-        fields = ['id', 'nombre', 'descripcion', 'usuario']
-        read_only_fields = ['id', 'usuario']
+        fields = ['id', 'usuario', 'nombre', 'dia']
+        read_only_fields = ['id']
 
 class TipoEjercicioSerializer(serializers.ModelSerializer):
     class Meta:

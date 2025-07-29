@@ -48,23 +48,24 @@ class Amistad(models.Model):
 
 
 class Rutina(models.Model):
-    DIAS_SEMANA = [
-        ('LUN', 'Lunes'),
-        ('MAR', 'Martes'),
-        ('MIE', 'Miércoles'),
-        ('JUE', 'Jueves'),
-        ('VIE', 'Viernes'),
-        ('SAB', 'Sábado'),
-        ('DOM', 'Domingo'),
-    ]
-
     id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='rutinas')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='rutinas')
     nombre = models.CharField(max_length=100)
-    dia_semana = models.CharField(max_length=3, choices=DIAS_SEMANA)
+    dia = models.CharField(
+        max_length=10,
+        choices=[
+            ('lunes', 'Lunes'),
+            ('martes', 'Martes'),
+            ('miércoles', 'Miércoles'),
+            ('jueves', 'Jueves'),
+            ('viernes', 'Viernes'),
+            ('sábado', 'Sábado'),
+            ('domingo', 'Domingo'),
+        ]
+    )
 
     def __str__(self):
-        return f"{self.nombre} - {self.get_dia_semana_display()} ({self.usuario.username})"
+        return f"{self.nombre} ({self.dia}) - {self.usuario.username}"
 
 
 class TipoEjercicio(models.Model):
