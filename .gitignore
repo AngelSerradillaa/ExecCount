@@ -1,0 +1,16 @@
+# FRONT - Node.js & React
+node_modules/
+dist/
+.vite/
+
+# BACK - Python & Django
+__pycache__/
+*.pyc
+db.sqlite3
+**/migrations/*
+!**/migrations/__init__.py
+
+# General exclusions
+.vscode/
+env/
+.env
