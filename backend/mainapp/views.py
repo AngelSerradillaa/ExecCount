@@ -8,6 +8,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from .serializers import AmistadSerializer, EjercicioRutinaSerializer, PublicacionSerializer, RegistroSerializer, UsuarioSerializer, RutinaSerializer, TipoEjercicioSerializer, LikeSerializer
 from .models import Amistad, EjercicioRutina, Like, Publicacion, Usuario, Rutina, TipoEjercicio
 from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
 
 class RegistroView(generics.CreateAPIView):
     queryset = Usuario.objects.all()
@@ -72,12 +73,25 @@ class TipoEjercicioDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class EjercicioRutinaListCreateView(generics.ListCreateAPIView):
-    queryset = EjercicioRutina.objects.all()
     serializer_class = EjercicioRutinaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return EjercicioRutina.objects.filter(rutina__usuario=self.request.user)
+    
+    def perform_create(self, serializer):
+        rutina = serializer.validated_data['rutina']
+        if rutina.usuario != self.request.user:
+            raise PermissionDenied("No puedes añadir ejercicios a una rutina que no es tuya")
+        serializer.save()
+
 
 class EjercicioRutinaDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = EjercicioRutina.objects.all()
     serializer_class = EjercicioRutinaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return EjercicioRutina.objects.filter(rutina__usuario=self.request.user)
 
 class AmistadListView(generics.ListAPIView):
     serializer_class = AmistadSerializer

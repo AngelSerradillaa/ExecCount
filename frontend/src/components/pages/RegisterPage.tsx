@@ -37,11 +37,11 @@ export const RegisterPage = () => {
       // 2. Loguear automáticamente para obtener token
       const loginData = await loginUser(email, password);
       console.log("Login Data:", loginData);
-      const token = loginData;
+      const token = { access: loginData.access, refresh: loginData.refresh };
       console.log("Token:", token);
 
       // 3. Guardar token en localStorage
-      localStorage.setItem("authToken", token.access);
+      localStorage.setItem("authToken", JSON.stringify(token));
 
       // 4. Obtener usuario autenticado
       const user = await getCurrentUser(token.access);

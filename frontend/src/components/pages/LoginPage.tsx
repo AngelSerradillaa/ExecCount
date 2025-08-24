@@ -22,12 +22,12 @@ export const LoginPage = () => {
       // 1. Login y obtener token
       const data = await loginUser(email, password);
       //const token = data.access;
-
+      const dataObj = { access: data.access, refresh: data.refresh };
       // 2. Guardar token en localStorage
-      localStorage.setItem("authToken", data);
+      localStorage.setItem("authToken", JSON.stringify(dataObj));
 
       // 3. Obtener usuario autenticado
-      const user = await getCurrentUser(data.access);
+      const user = await getCurrentUser(dataObj.access);
       localStorage.setItem("user", JSON.stringify(user));
 
       // 4. Redirigir a dashboard

@@ -31,6 +31,21 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'username', 'nombre', 'apellidos']
         read_only_fields = ['id', 'email', 'username']  
 
+class TipoEjercicioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoEjercicio
+        fields = '__all__'
+
+class EjercicioRutinaSerializer(serializers.ModelSerializer):
+    nombre_ejercicio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = EjercicioRutina
+        fields = ['id', 'rutina', 'tipo_ejercicio', 'nombre_ejercicio', 'sets', 'repeticiones', 'record_peso']
+
+    def get_nombre_ejercicio(self, obj):
+        return obj.tipo_ejercicio.nombre
+
 class RutinaSerializer(serializers.ModelSerializer):
     DIA_CHOICES = [
         ('lunes', 'Lunes'),
@@ -43,21 +58,12 @@ class RutinaSerializer(serializers.ModelSerializer):
     ]
 
     dia = serializers.ChoiceField(choices=DIA_CHOICES)
+    ejercicios = EjercicioRutinaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Rutina
-        fields = ['id', 'usuario', 'nombre', 'dia']
+        fields = ['id', 'usuario', 'nombre', 'dia', 'ejercicios']
         read_only_fields = ['id']
-
-class TipoEjercicioSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoEjercicio
-        fields = '__all__'
-
-class EjercicioRutinaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EjercicioRutina
-        fields = '__all__'
 
 class AmistadSerializer(serializers.ModelSerializer):
     class Meta:
