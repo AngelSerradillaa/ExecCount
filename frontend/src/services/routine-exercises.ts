@@ -8,6 +8,7 @@ export interface EjercicioRutina {
   sets: number;
   repeticiones: number;
   record_peso?: number | null;
+  orden: number;
 }
 
 const API_URL = "http://localhost:8000/api/auth/ejercicio-rutinas/";

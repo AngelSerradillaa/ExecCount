@@ -43,6 +43,7 @@ export const createRutina = async (
 
 // Eliminar rutina por ID
 export const deleteRutina = async (id: number): Promise<void> => {
+  console.log("Deleting rutina with id:", id);
   await axios.delete(`${API_URL}${id}/`, {
     headers: getAuthHeaders(),
   });
@@ -60,4 +61,20 @@ export const updateRutina = async (
     },
   });
   return response.data;
+};
+
+export const reorderEjerciciosRutina = async (
+  rutinaId: number,
+  ejercicios: { id: number; orden: number }[]
+): Promise<void> => {
+  await axios.put(
+    `${API_URL}${rutinaId}/reorder-ejercicios/`,
+    { ejercicios }, // el backend espera un objeto con la clave "ejercicios"
+    {
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+    }
+  );
 };

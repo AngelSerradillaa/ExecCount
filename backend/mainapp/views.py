@@ -85,13 +85,35 @@ class EjercicioRutinaListCreateView(generics.ListCreateAPIView):
             raise PermissionDenied("No puedes añadir ejercicios a una rutina que no es tuya")
         serializer.save()
 
-
 class EjercicioRutinaDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EjercicioRutinaSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return EjercicioRutina.objects.filter(rutina__usuario=self.request.user)
+    
+class ReorderEjerciciosView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, rutina_id):
+        rutina = Rutina.objects.filter(id=rutina_id, usuario=request.user).first()
+        if not rutina:
+            return Response({"error": "Rutina no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+        ejercicios_data = request.data.get("ejercicios", [])
+        if not isinstance(ejercicios_data, list):
+            return Response({"error": "Formato inválido"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Actualizamos el orden
+        for e in ejercicios_data:
+            try:
+                ejercicio = EjercicioRutina.objects.get(id=e["id"], rutina=rutina)
+                ejercicio.orden = e["orden"]
+                ejercicio.save()
+            except EjercicioRutina.DoesNotExist:
+                continue
+
+        return Response({"status": "ok"})
 
 class AmistadListView(generics.ListAPIView):
     serializer_class = AmistadSerializer

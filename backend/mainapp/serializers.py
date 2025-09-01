@@ -41,7 +41,8 @@ class EjercicioRutinaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EjercicioRutina
-        fields = ['id', 'rutina', 'tipo_ejercicio', 'nombre_ejercicio', 'sets', 'repeticiones', 'record_peso']
+        fields = ['id', 'rutina', 'tipo_ejercicio', 'nombre_ejercicio', 'sets', 'repeticiones', 
+                  'record_peso', 'orden']
 
     def get_nombre_ejercicio(self, obj):
         return obj.tipo_ejercicio.nombre

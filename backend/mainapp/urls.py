@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import ( AmistadCreateView, AmistadDeleteView, AmistadListView, AmistadUpdateView, 
                     EjercicioRutinaDetailView, EjercicioRutinaListCreateView, LikeCreateView, LikeDeleteView, PublicacionDetailView, PublicacionListCreateView, RegistroView, 
-                    LogoutView, UsuarioListView, UsuarioDetailView, UsuarioMeView, 
+                    LogoutView, ReorderEjerciciosView, UsuarioListView, UsuarioDetailView, UsuarioMeView, 
                     RutinaListCreateView, RutinaDetailView, TipoEjercicioDetailView,
                     TipoEjercicioListCreateView  )
 from rest_framework_simplejwt.views import (
@@ -21,12 +21,14 @@ urlpatterns = [
 
     path('rutinas/', RutinaListCreateView.as_view(), name='rutina-list-create'),
     path('rutinas/<int:pk>/', RutinaDetailView.as_view(), name='rutina-detail'),
+    path('rutinas/<int:rutina_id>/reorder-ejercicios/', ReorderEjerciciosView.as_view(), name='reorder-ejercicios'),
 
     path('tipo-ejercicios/', TipoEjercicioListCreateView.as_view(), name='tipo_ejercicio_list_create'),
     path('tipo-ejercicios/<int:pk>/', TipoEjercicioDetailView.as_view(), name='tipo_ejercicio_detail'),
 
     path('ejercicio-rutinas/', EjercicioRutinaListCreateView.as_view(), name='ejercicio-rutina-list-create'),
     path('ejercicio-rutinas/<int:pk>/', EjercicioRutinaDetailView.as_view(), name='ejercicio-rutina-detail'),
+    
 
     path('amistades/', AmistadListView.as_view(), name='amistad-list'),
     path('amistades/crear/', AmistadCreateView.as_view(), name='amistad-create'),

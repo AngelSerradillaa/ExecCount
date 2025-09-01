@@ -84,7 +84,11 @@ class EjercicioRutina(models.Model):
     tipo_ejercicio = models.ForeignKey(TipoEjercicio, on_delete=models.PROTECT)
     sets = models.PositiveIntegerField()
     repeticiones = models.PositiveIntegerField()
-    record_peso = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)  
+    record_peso = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    orden = models.PositiveIntegerField(default=0)  
+
+    class Meta:
+        ordering = ['orden']
 
     def __str__(self):
         return f"{self.tipo_ejercicio.nombre} en {self.rutina.nombre}"

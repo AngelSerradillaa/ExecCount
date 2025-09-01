@@ -15,19 +15,19 @@ import { createEjercicioRutina } from "../../services/routine-exercises";
 import { getTipoEjercicios } from "../../services/exercises";
 import type { TipoEjercicio } from "../../services/exercises";
 import type { EjercicioRutina } from "../../services/routine-exercises";
-import { deleteRutina, type Rutina } from "../../services/routines";
+import { type Rutina } from "../../services/routines";
 import { toaster } from "../ui/toaster";
 
 interface Props {
   rutina: Rutina;
-  onClose: () => void;
+  onClose: (hayEjercicios: boolean) => void;
   onEjerciciosChange?: (ejercicios: EjercicioRutina[]) => void;
 }
 
 export const CreateRutina = ({ rutina, onClose, onEjerciciosChange }: Props) => {
   type Item = { label: string; value: string };
 
-  const [ejercicios, setEjercicios] = useState<EjercicioRutina[]>([]);
+  const [ejercicios, setEjercicios] = useState<EjercicioRutina[]>(rutina.ejercicios || []);
   const [tipoEjercicios, setTipoEjercicios] = useState<TipoEjercicio[]>([]);
   const [selectedTipo, setSelectedTipo] = useState<string>(""); 
   const [sets, setSets] = useState("3");
@@ -60,48 +60,48 @@ export const CreateRutina = ({ rutina, onClose, onEjerciciosChange }: Props) => 
 }, []);
 
     const handleAddEjercicio = async () => {
-    if (!selectedTipo) {
-      toaster.create({ description: "Selecciona un ejercicio", type: "error" });
-      return;
-    }
+  if (!selectedTipo) {
+    toaster.create({ description: "Selecciona un ejercicio", type: "error" });
+    return;
+  }
 
-    try {
-      const nuevo = await createEjercicioRutina({
-        rutina: rutina.id,
-        tipo_ejercicio: parseInt(selectedTipo, 10),
-        sets: parseInt(sets, 10),
-        repeticiones: parseInt(reps, 10),
-        record_peso: parseFloat(peso),
-      });
+  try {
+    const nuevo = await createEjercicioRutina({
+      rutina: rutina.id,
+      tipo_ejercicio: parseInt(selectedTipo, 10),
+      sets: parseInt(sets, 10),
+      repeticiones: parseInt(reps, 10),
+      record_peso: parseFloat(peso),
+      orden: ejercicios.length, // 👈 último lugar
+    });
 
-      setEjercicios((prev) => {
-        const nuevos = [...prev, nuevo];
-        onEjerciciosChange?.(nuevos); // Avisamos al padre
-        return nuevos;
-      });
+    setEjercicios((prev) => {
+      const nuevos = [...prev, nuevo];
+      onEjerciciosChange?.(nuevos); // Avisamos al padre
+      return nuevos;
+    });
 
-      // Reseteamos valores
-      setSelectedTipo("");
-      setSets("3");
-      setReps("12");
-      setPeso("0");
-    } catch {
-      toaster.create({ description: "Error creando ejercicio", type: "error" });
-    }
-  };
+    // Reseteamos valores
+    setSelectedTipo("");
+    setSets("3");
+    setReps("12");
+    setPeso("0");
+  } catch {
+    console.log("Error creando ejercicio");
+    toaster.create({ description: "Error creando ejercicio", type: "error" });
+  }
+};
 
   const handleClose = () => {
-    if (ejercicios.length === 0) {
-      deleteRutina(rutina.id);
-    }
-    onClose();
+  const hasEjercicios = ejercicios.length > 0;
+  onClose(hasEjercicios); // <-- PASAMOS true si hay ejercicios
   };
 
   const getTipoNombre = (id: number) =>
     tipoEjercicios.find((t) => t.id === id)?.nombre || "Desconocido";
 
   return (
-    <Dialog.Root open={true} onOpenChange={(d) => !d.open && onClose()}>
+    <Dialog.Root open={true} onOpenChange={(d) => !d.open && onClose(ejercicios.length > 0)}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>

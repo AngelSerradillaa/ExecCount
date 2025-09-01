@@ -1,12 +1,6 @@
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Stack,
-  HStack,
-} from "@chakra-ui/react";
+import { useEffect, useState, useCallback } from "react";
+import { Box, Button, Flex, Heading, Stack, HStack } from "@chakra-ui/react";
+import List, { ItemDragging, type IItemDraggingProps } from "devextreme-react/list";
 import { getRutinas, deleteRutina } from "../../services/routines";
 import type { Rutina } from "../../services/routines";
 import type { EjercicioRutina } from "../../services/routine-exercises";
@@ -14,6 +8,7 @@ import { CreateRutinaButton } from "../atoms/CreateRoutineButton";
 import { CreateRutina } from "../organisms/CreateRoutine";
 import { deleteEjercicioRutina } from "../../services/routine-exercises";
 import { EjercicioCard } from "../atoms/ExerciseRoutineCard";
+import { reorderEjerciciosRutina } from "../../services/routines";
 
 const diasSemana = [
   { label: "Lunes", value: "lunes" },
@@ -32,7 +27,6 @@ export const RutinasPage = () => {
   useEffect(() => {
     const fetchRutinas = async () => {
       const data = await getRutinas();
-      // Aseguramos que cada rutina tenga un array ejercicios aunque venga vacío
       setRutinas(data.map(r => ({ ...r, ejercicios: r.ejercicios || [] })));
     };
     fetchRutinas();
@@ -40,10 +34,8 @@ export const RutinasPage = () => {
 
   const handleEliminarRutina = async (rutinaId: number) => {
     await deleteRutina(rutinaId);
-    setRutinas((prev) => prev.filter((r) => r.id !== rutinaId));
-    if (selectedRutina?.id === rutinaId) {
-      setSelectedRutina(null);
-    }
+    setRutinas(prev => prev.filter(r => r.id !== rutinaId));
+    if (selectedRutina?.id === rutinaId) setSelectedRutina(null);
   };
 
   const handleEliminarEjercicio = async (rutinaId: number, ejercicioId: number) => {
@@ -62,16 +54,13 @@ export const RutinasPage = () => {
 
   const handleEjerciciosChange = (rutinaId: number, ejercicios: EjercicioRutina[]) => {
     setRutinas(prev =>
-      prev.map(r =>
-        r.id === rutinaId ? { ...r, ejercicios } : r
-      )
+      prev.map(r => (r.id === rutinaId ? { ...r, ejercicios } : r))
     );
   };
 
   const handleCloseModal = async (hayEjercicios: boolean = false) => {
     if (selectedRutina) {
       if (!hayEjercicios) {
-        // Si no se añadieron ejercicios, borramos la rutina
         try {
           await deleteRutina(selectedRutina.id);
           setRutinas(prev => prev.filter(r => r.id !== selectedRutina.id));
@@ -84,7 +73,47 @@ export const RutinasPage = () => {
   };
 
   const getRutinaByDia = (dia: string) =>
-    rutinas.find((rutina) => rutina.dia === dia);
+    rutinas.find(rutina => rutina.dia === dia);
+
+  /** --- Drag & Drop handlers usando IItemDraggingProps --- */
+  const onDragStart = useCallback(
+    (rutinaId: number): IItemDraggingProps['onDragStart'] => (e) => {
+      const rutina = rutinas.find(r => r.id === rutinaId);
+      if (!rutina) return;
+      e.itemData = rutina?.ejercicios?.[e.fromIndex] ?? null;
+    },
+    [rutinas]
+  );
+
+  const onReorder = useCallback(
+  (rutinaId: number): IItemDraggingProps['onReorder'] => async (e) => {
+    const rutina = rutinas.find(r => r.id === rutinaId);
+    if (!rutina) return;
+
+    const updated = [...(rutina.ejercicios || [])];
+    const [moved] = updated.splice(e.fromIndex, 1);
+    updated.splice(e.toIndex, 0, moved);
+
+    // recalcular orden según la nueva posición
+    const ejerciciosConOrden = updated.map((ej, index) => ({
+      ...ej,
+      orden: index,
+    }));
+
+    // actualizar estado local
+    handleEjerciciosChange(rutinaId, ejerciciosConOrden);
+
+    try {
+      await reorderEjerciciosRutina(
+        rutinaId,
+        ejerciciosConOrden.map(ej => ({ id: ej.id, orden: ej.orden }))
+      );
+    } catch (err) {
+      console.error("Error reordenando ejercicios:", err);
+    }
+  },
+  [rutinas]
+);
 
   return (
     <Box p={6} mt={12}>
@@ -93,7 +122,7 @@ export const RutinasPage = () => {
       </Heading>
 
       <Flex gap={4} justify="space-between">
-        {diasSemana.map((d) => {
+        {diasSemana.map(d => {
           const rutina = getRutinaByDia(d.value);
 
           return (
@@ -111,23 +140,25 @@ export const RutinasPage = () => {
 
               {rutina ? (
                 <Stack gap={2}>
-                  <Box
-                    p={2}
-                    borderRadius="lg"
-                    textAlign="center"
-                  >
-
-                    {/* Ejercicios asociados */}
-                    {rutina.ejercicios?.map((e) => (
-                      
-                      <EjercicioCard
-                        key={e.id}
-                        ejercicio={e}
-                        nombre={e.nombre_ejercicio ?? "Ejercicio"}
-                        onDelete={(id) => handleEliminarEjercicio(rutina.id, id)}
+                  <Box p={2} borderRadius="lg" textAlign="center">
+                    <List
+                      dataSource={rutina.ejercicios}
+                      keyExpr="id"
+                      repaintChangesOnly={true}
+                      itemRender={(ejercicio: EjercicioRutina) => (
+                        <EjercicioCard
+                          ejercicio={ejercicio}
+                          nombre={ejercicio.nombre_ejercicio ?? "Ejercicio"}
+                          onDelete={id => handleEliminarEjercicio(rutina.id, id)}
+                        />
+                      )}
+                    >
+                      <ItemDragging
+                        allowReordering={true}
+                        onDragStart={onDragStart(rutina.id)}
+                        onReorder={onReorder(rutina.id)}
                       />
-                      
-                    ))}
+                    </List>
                   </Box>
 
                   <HStack justify="center">
@@ -150,9 +181,9 @@ export const RutinasPage = () => {
               ) : (
                 <CreateRutinaButton
                   dia={d.value}
-                  onCreated={(nueva) => {
-                    setRutinas((prev) => [...prev, { ...nueva, ejercicios: [] }]);
-                    setSelectedRutina({ ...nueva, ejercicios: [] }); // abrir directamente modal
+                  onCreated={nueva => {
+                    setRutinas(prev => [...prev, { ...nueva, ejercicios: [] }]);
+                    setSelectedRutina({ ...nueva, ejercicios: [] });
                   }}
                 />
               )}
@@ -161,12 +192,11 @@ export const RutinasPage = () => {
         })}
       </Flex>
 
-      {/* Dialog de ejercicios */}
       {selectedRutina && (
         <CreateRutina
           rutina={selectedRutina}
           onClose={handleCloseModal}
-          onEjerciciosChange={(ejercicios) =>
+          onEjerciciosChange={ejercicios =>
             handleEjerciciosChange(selectedRutina.id, ejercicios)
           }
         />
