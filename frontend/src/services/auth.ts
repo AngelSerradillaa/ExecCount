@@ -1,6 +1,6 @@
 import axios from "axios";
 
-interface RegisterData {
+export interface RegisterData {
   email: string;
   username: string;
   nombre: string;
@@ -62,4 +62,13 @@ export const logoutUser = async () => {
   // Elimina el token del localStorage
   localStorage.removeItem("authToken");
   localStorage.removeItem("user");
+};
+
+export const updateCurrentUser = async (token: string, data: Partial<{ nombre: string; apellidos: string; password: string }>) => {
+  const response = await axios.patch("http://localhost:8000/api/auth/users/me/", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
 };

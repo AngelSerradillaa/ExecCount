@@ -67,15 +67,63 @@ class RutinaSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class AmistadSerializer(serializers.ModelSerializer):
+    amigo_username = serializers.CharField(source="amigo.username", read_only=True)
+    amigo_email = serializers.EmailField(source="amigo.email", read_only=True)
+    usuario_username = serializers.CharField(source="usuario.username", read_only=True)
+    usuario_email = serializers.EmailField(source="usuario.email", read_only=True)
+    tipo = serializers.SerializerMethodField()
+    
+    # Este campo solo se usa para input, no pertenece al modelo
+    amigo_input = serializers.CharField(write_only=True)
+
     class Meta:
         model = Amistad
-        fields = ['id', 'usuario', 'amigo', 'status']
-        read_only_fields = ['id', 'usuario', 'status']  
+        fields = [
+            "id",
+            "usuario",
+            "usuario_username",
+            "usuario_email",
+            "amigo",
+            "amigo_username",
+            "amigo_email",
+            "status",
+            "tipo",
+            "amigo_input",
+        ]
+        read_only_fields = ['id', 'usuario', 'status', 'amigo']
 
-    def validate(self, data):
-        if data['usuario'] == data['amigo']:
+    def get_tipo(self, obj):
+        """Indica si la amistad fue enviada o recibida respecto al usuario logueado"""
+        request = self.context.get("request")
+        if request and obj.usuario == request.user:
+            return "enviada"
+        return "recibida"
+
+    def create(self, validated_data):
+        # Sacamos amigo_input
+        amigo_input = validated_data.pop("amigo_input")
+        usuario = self.context['request'].user
+
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        # Buscar por username o email
+        try:
+            amigo_user = User.objects.get(username=amigo_input)
+        except User.DoesNotExist:
+            try:
+                amigo_user = User.objects.get(email=amigo_input)
+            except User.DoesNotExist:
+                raise serializers.ValidationError({"amigo_input": "Usuario no encontrado."})
+
+        if usuario == amigo_user:
             raise serializers.ValidationError("No puedes agregarte a ti mismo como amigo.")
-        return data
+
+        validated_data['amigo'] = amigo_user
+        validated_data['usuario'] = usuario
+        validated_data['status'] = 'pendiente'
+
+        return super().create(validated_data)
 
 class PublicacionSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()

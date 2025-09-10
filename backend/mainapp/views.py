@@ -10,6 +10,7 @@ from .models import Amistad, EjercicioRutina, Like, Publicacion, Usuario, Rutina
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
 
+
 class RegistroView(generics.CreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = RegistroSerializer
@@ -121,7 +122,9 @@ class AmistadListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Amistad.objects.filter(usuario=user)  # Solicitudes enviadas por el usuario
+        return Amistad.objects.filter(
+            Q(usuario=user) | Q(amigo=user)
+        )
 
 class AmistadCreateView(generics.CreateAPIView):
     serializer_class = AmistadSerializer
@@ -140,9 +143,20 @@ class AmistadUpdateView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         instancia = self.get_object()
+
+        if instancia.status != "pendiente":
+            return Response(
+                {"error": "La solicitud ya fue procesada."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         nuevo_status = request.data.get('status')
         if nuevo_status not in ['aceptada', 'rechazada']:
-            return Response({"error": "Estado inválido"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Estado inválido"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         instancia.status = nuevo_status
         instancia.save()
         return Response(self.get_serializer(instancia).data)
