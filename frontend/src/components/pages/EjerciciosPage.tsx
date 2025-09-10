@@ -19,7 +19,7 @@ import { FaDumbbell, FaRunning, FaBiking, FaHeartbeat } from "react-icons/fa"
 import type { IconType } from "react-icons"
 import { getTipoEjercicios, deleteTipoEjercicio } from "../../services/exercises"
 import { CreateTipoEjercicio } from "../organisms/CreateExercise"
-import { toaster } from "../ui/toaster"
+import { toaster } from "../ui/toasterInstance"
 
 interface Ejercicio {
   id: number

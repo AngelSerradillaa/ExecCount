@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@chakra-ui/react";
 import { createRutina } from "../../services/routines";
 import type { Rutina } from "../../services/routines";
-import { toaster } from "../ui/toaster";
+import { toaster } from "../ui/toasterInstance";
 
 interface Props {
   dia: string;

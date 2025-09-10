@@ -21,7 +21,9 @@ import {
   actualizarAmistad,
   type Amistad,
 } from "../../services/friendship";
-import { toaster } from "../ui/toaster";
+import { toaster } from "../ui/toasterInstance";
+import { CgProfile } from "react-icons/cg";
+import { FaUserFriends } from "react-icons/fa";
 
 export const PerfilPage = () => {
   const [user, setUser] = useState<RegisterData | null>(null);
@@ -36,6 +38,7 @@ export const PerfilPage = () => {
 
   const token = JSON.parse(localStorage.getItem("authToken") || "{}")?.access;
 
+  
   // Cargar usuario y amistades
   useEffect(() => {
     const loadUser = async () => {
@@ -58,11 +61,27 @@ export const PerfilPage = () => {
           setAmistades(misAmistades);
         }
       } catch (err) {
-        console.error("Error cargando usuario o amistades:", err);
+        console.error("Error listando amistades:", err);
+        toaster.create({ 
+          title: "Error",
+          description: "Error al listar amistades", 
+          type: "error" });
       }
     };
     loadUser();
   }, [token]);
+
+  const getAmistadesOrdenadas = () => {
+    const pendientes = amistades.filter(a => a.status === "pendiente");
+    const aceptadas = amistades
+      .filter(a => a.status === "aceptada")
+      .sort((a, b) => {
+        const nameA = a.tipo === "enviada" ? a.amigo_username : a.usuario_username;
+        const nameB = b.tipo === "enviada" ? b.amigo_username : b.usuario_username;
+        return nameA.localeCompare(nameB);
+      });
+    return [...pendientes, ...aceptadas];
+  };
 
   // Medir altura de la pestaña de perfil después de render
   useEffect(() => {
@@ -78,10 +97,16 @@ export const PerfilPage = () => {
     setAmistades((prev) =>
       prev.map((a) => (a.id === id ? updated : a))
     );
-    toaster.create({ description: `Solicitud ${status}`, type: "success" });
+    toaster.create({ 
+      title: "Éxito",
+      description: `Solicitud ${status}`, 
+      type: "success" });
   } catch (err) {
     console.error("Error actualizando amistad:", err);
-    toaster.create({ description: "Error al actualizar amistad", type: "error" });
+    toaster.create({ 
+      title: "Error",
+      description: "Error al actualizar amistad", 
+      type: "error" });
   }
 };
 
@@ -97,12 +122,15 @@ export const PerfilPage = () => {
       localStorage.setItem("user", JSON.stringify(updated));
       setPassword("");
       toaster.create({
+        title: "Éxito",
         description: "Perfil actualizado correctamente",
         type: "success",
       });
+      console.log("🔥 toaster lanzado");
     } catch (err) {
       console.error("Error actualizando usuario:", err);
       toaster.create({
+        title: "Error",
         description: "Error al actualizar perfil",
         type: "error",
       });
@@ -115,10 +143,16 @@ export const PerfilPage = () => {
       const nuevo = await crearAmistad(nuevoAmigo.trim(), token);
       setAmistades((prev) => [...prev, nuevo]);
       setNuevoAmigo("");
-      toaster.create({ description: "Solicitud enviada", type: "success" });
+      toaster.create({ 
+        title: "Éxito",
+        description: "Solicitud enviada", 
+        type: "success" });
     } catch (err) {
       console.error("Error agregando amigo:", err);
-      toaster.create({ description: "Error al agregar amigo", type: "error" });
+      toaster.create({ 
+        title: "Error",
+        description: "Error al agregar amigo", 
+        type: "error" });
     }
   };
 
@@ -127,10 +161,14 @@ export const PerfilPage = () => {
     try {
       await eliminarAmistad(id, token);
       setAmistades((prev) => prev.filter((a) => a.id !== id));
-      toaster.create({ description: "Amistad eliminada", type: "success" });
+      toaster.create({ 
+        title: "Éxito",
+        description: "Amistad eliminada", 
+        type: "success" });
     } catch (err) {
       console.error("Error eliminando amigo:", err);
       toaster.create({
+        title: "Error",
         description: "Error al eliminar amistad",
         type: "error",
       });
@@ -155,12 +193,17 @@ export const PerfilPage = () => {
         boxShadow="lg"
         p={6}
       >
-        <Tabs.Root defaultValue="perfil" variant="plain">
-          <Tabs.List mb={4} borderBottom="1px solid" borderColor="gray.600">
-            <Tabs.Trigger value="perfil" px={4} py={2}>
+        <Tabs.Root defaultValue="perfil" variant="plain" fitted>
+          <Tabs.List mb={4} pb={2} borderBottom="1px solid" borderColor="brand.600">
+            <Tabs.Trigger value="perfil" px={4} py={2} mr={2}
+            _selected={{ color: "brand.500", bg: "transparent", borderBottom: "2px solid", borderColor: "brand.500",
+            }}>
+              <CgProfile />
               Perfil
             </Tabs.Trigger>
-            <Tabs.Trigger value="amistades" px={4} py={2}>
+            <Tabs.Trigger value="amistades" px={4} py={2}
+            _selected={{ color: "brand.500", bg: "transparent", borderBottom: "2px solid", borderColor: "brand.500"}}>
+              <FaUserFriends />
               Amistades
             </Tabs.Trigger>
           </Tabs.List>
@@ -174,12 +217,12 @@ export const PerfilPage = () => {
               <Stack gap={4}>
                 <Box>
                   <Text mb={1}>Email</Text>
-                  <Input value={user.email} readOnly bg="gray.700" />
+                  <Input value={user.email} readOnly bg="gray.700" borderColor={"brand.600"}/>
                 </Box>
 
                 <Box>
                   <Text mb={1}>Usuario</Text>
-                  <Input value={user.username} readOnly bg="gray.700" />
+                  <Input value={user.username} readOnly bg="gray.700" borderColor={"brand.600"}/>
                 </Box>
 
                 <Box>
@@ -188,6 +231,7 @@ export const PerfilPage = () => {
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     bg="gray.700"
+                    borderColor={"brand.600"}
                   />
                 </Box>
 
@@ -197,6 +241,7 @@ export const PerfilPage = () => {
                     value={apellidos}
                     onChange={(e) => setApellidos(e.target.value)}
                     bg="gray.700"
+                    borderColor={"brand.600"}
                   />
                 </Box>
 
@@ -208,10 +253,11 @@ export const PerfilPage = () => {
                     placeholder="Nueva contraseña"
                     onChange={(e) => setPassword(e.target.value)}
                     bg="gray.700"
+                    borderColor={"brand.600"}
                   />
                 </Box>
 
-                <Button colorScheme="blue" onClick={handleSave}>
+                <Button colorScheme="blue" onClick={handleSave} bgColor={"brand.500"} _hover={{ bgColor: "brand.800" }}>
                   Guardar cambios
                 </Button>
               </Stack>
@@ -233,7 +279,7 @@ export const PerfilPage = () => {
                     onChange={(e) => setNuevoAmigo(e.target.value)}
                     bg="gray.700"
                   />
-                  <Button ml={2} type="submit">
+                  <Button ml={2} type="submit" bgColor={"brand.500"} _hover={{ bgColor: "brand.800" }}>
                     Enviar
                   </Button>
                 </Flex>
@@ -242,7 +288,7 @@ export const PerfilPage = () => {
                   <Text>No tienes amistades todavía.</Text>
                 ) : (
                   <Stack gap={2}>
-                    {amistades.map((a) => (
+                    {getAmistadesOrdenadas().map((a) => (
                       <Flex
                         key={a.id}
                         justify="space-between"
@@ -285,6 +331,7 @@ export const PerfilPage = () => {
                             size="sm"
                             colorScheme="red"
                             onClick={() => handleEliminarAmigo(a.id)}
+                            bgColor={"red.500"} _hover={{ bgColor: "red.600" }}
                           >
                             Eliminar amigo
                           </Button>

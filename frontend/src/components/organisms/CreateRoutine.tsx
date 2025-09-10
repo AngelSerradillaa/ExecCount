@@ -16,7 +16,7 @@ import { getTipoEjercicios } from "../../services/exercises";
 import type { TipoEjercicio } from "../../services/exercises";
 import type { EjercicioRutina } from "../../services/routine-exercises";
 import { type Rutina } from "../../services/routines";
-import { toaster } from "../ui/toaster";
+import { toaster } from "../ui/toasterInstance";
 
 interface Props {
   rutina: Rutina;

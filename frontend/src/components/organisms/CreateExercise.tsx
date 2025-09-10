@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react"
 import { createTipoEjercicio } from "../../services/exercises"
 import type { TipoEjercicio } from "../../services/exercises"
-import { toaster } from "../ui/toaster"
+import { toaster } from "../ui/toasterInstance"
 
 interface CreateTipoEjercicioProps {
   onCreated: (nuevo: TipoEjercicio) => void

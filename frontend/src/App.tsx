@@ -11,6 +11,7 @@ import { Flex, Box } from "@chakra-ui/react";
 import { Navbar } from "./components/molecules/NavBar"; 
 import { ProtectedRoute } from "./components/atoms/ProtectedRoute";
 import { Outlet } from "react-router-dom";
+import { Toaster } from "./components/ui/toaster"
 
 // Layout que incluye la navbar
 function AppLayout() {
@@ -26,6 +27,7 @@ function AppLayout() {
 
 function App() {
   return (
+    <Flex direction="column" minH="100vh">
     <Routes>
       {/* Rutas públicas */}
       <Route path="/" element={<LoginPage />} />
@@ -41,6 +43,8 @@ function App() {
         </Route>
       </Route>
     </Routes>
+    <Toaster />
+    </Flex>
   );
 }
 
