@@ -9,7 +9,7 @@ interface AuthCardProps {
 export const AuthCard = ({ title, children }: AuthCardProps) => {
   return (
     <Box
-      maxW="400px"
+      maxW="700px"
       w="100%"
       mx="auto"
       mt="20"

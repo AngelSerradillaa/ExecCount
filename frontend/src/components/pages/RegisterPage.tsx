@@ -1,4 +1,4 @@
-import { Flex, Stack, Input, Button, Text, chakra } from '@chakra-ui/react';
+import { Flex, Stack, Input, Button, Text, chakra, Image, SimpleGrid } from '@chakra-ui/react';
 import { AuthCard } from '../organisms/AuthCard';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { registerUser, loginUser, getCurrentUser } from "../../services/auth";
@@ -47,8 +47,8 @@ export const RegisterPage = () => {
       const user = await getCurrentUser(token.access);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // 5. Redirigir al dashboard
-      navigate("/dashboard");
+      // 5. Redirigir a rutinas
+      navigate("/rutinas");
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {
         setError(JSON.stringify(err.response.data));
@@ -65,19 +65,29 @@ export const RegisterPage = () => {
       minH="100vh"
       minW="100vw"
       align="center"
-      justify="center"
-      bg="background.dark"
+      justify="flex-start"
+      pt={{base:15, md:20}}
       px="4"
+      direction={"column"}
     >
+      <Flex direction="column" align="center">
+              <Text fontSize="4xl" fontWeight="bold" color="white">
+                Bienvenido a 
+              </Text>
+              <Image src="/title.png" alt="Logo"/>
+              </Flex>
       <AuthCard title="Regístrate">
-        <Stack gap="4" as="form" onSubmit={handleSubmit}>
-          <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} bg="gray.800" color="white" />
-          <Input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} bg="gray.800" color="white" />
-          <Input placeholder="Apellidos" value={apellidos} onChange={e => setApellidos(e.target.value)} bg="gray.800" color="white" />
-          <Input placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} bg="gray.800" color="white" />
-          <Input placeholder="Contraseña" type="password" value={password} onChange={e => setPassword(e.target.value)} bg="gray.800" color="white" />
-          <Input placeholder="Repite la contraseña" type="password" value={password2} onChange={e => setPassword2(e.target.value)} bg="gray.800" color="white" />
-          <Button type="submit" colorScheme="brand" bgColor="brand.500" size="lg" _hover={{ bgColor: "brand.700" }} loading={loading}>
+        <form onSubmit={handleSubmit}>
+        <Stack align={"center"} >
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} mb={4} w="100%">
+            <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} bg="gray.800" color="white" />
+            <Input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} bg="gray.800" color="white" />
+            <Input placeholder="Apellidos" value={apellidos} onChange={e => setApellidos(e.target.value)} bg="gray.800" color="white" />
+            <Input placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} bg="gray.800" color="white" />
+            <Input placeholder="Contraseña" type="password" value={password} onChange={e => setPassword(e.target.value)} bg="gray.800" color="white" />
+            <Input placeholder="Repite la contraseña" type="password" value={password2} onChange={e => setPassword2(e.target.value)} bg="gray.800" color="white" />
+          </SimpleGrid>
+          <Button type="submit" colorScheme="brand" bgColor="brand.500" size="lg" mb={2} _hover={{ bgColor: "brand.700" }} loading={loading}>
             Registrarse
           </Button>
           {error && <Text color="red.400" textAlign="center">{error}</Text>}
@@ -88,6 +98,7 @@ export const RegisterPage = () => {
             </ChakraRouterLink>
           </Text>
         </Stack>
+        </form>
       </AuthCard>
     </Flex>
   );

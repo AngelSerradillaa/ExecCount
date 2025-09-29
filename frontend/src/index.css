@@ -39,7 +39,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -49,6 +48,25 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+  
+}
+
+.chakra-number-input__incrementTrigger, .chakra-number-input__decrementTrigger {
+  padding: 0;
+  border-radius: 0px;
+  border: 1px solid white;
+  background-color: #8b5cf6;
+  color: white;
+
+}
+
+.chakra-number-input__incrementTrigger:hover, .chakra-number-input__decrementTrigger:hover {
+    background-color: #7c3aed;
+}
+
+.chakra-number-input__control {
+  border-radius: 5px;
+  border: 0;
 }
 
 @media (prefers-color-scheme: light) {

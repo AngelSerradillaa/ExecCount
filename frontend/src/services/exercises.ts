@@ -23,6 +23,7 @@ export const getTipoEjercicios = async (): Promise<TipoEjercicio[]> => {
   const response = await axios.get(API_URL, {
     headers: getAuthHeaders(),
   });
+  console.log(response.data);
   return response.data;
 };
 

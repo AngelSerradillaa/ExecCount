@@ -55,10 +55,11 @@ export const Navbar = () => {
       {/* Botón de Logout */}
       <Button
         onClick={handleLogout}
-        colorScheme="red"
+        bgColor="red.500"
+        _hover={{ bgColor: "red.700" }}
         size="sm"
       >
-        Logout
+        Salir
       </Button>
     </Flex>
   );

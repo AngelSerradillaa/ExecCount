@@ -1,4 +1,4 @@
-import { Flex, Stack, Input, Button, Text, chakra } from "@chakra-ui/react";
+import { Flex, Stack, Input, Button, Text, chakra, Image } from "@chakra-ui/react";
 import { AuthCard } from "../organisms/AuthCard";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 const ChakraRouterLink = chakra(RouterLink);
@@ -31,7 +31,7 @@ export const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify(user));
 
       // 4. Redirigir a dashboard
-      navigate("/dashboard"); 
+      navigate("/rutinas"); 
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ detail: string }>;
       setError(axiosError.response?.data?.detail || "Error en login");
@@ -45,10 +45,17 @@ export const LoginPage = () => {
       minH="100vh"
       minW="100vw"
       align="center"
-      justify="center"
-      bg="background.dark"
+      direction="column"
+      justify="flex-start"
+      pt={20}
       px="4"
     >
+      <Flex direction="column" align="center">
+        <Text fontSize="4xl" fontWeight="bold" color="white">
+          Bienvenido a 
+        </Text>
+        <Image src="/title.png" alt="Logo"/>
+        </Flex>
       <form onSubmit={handleSubmit}>
         <AuthCard title="Inicia sesión">
           <Stack gap="4">
@@ -86,8 +93,8 @@ export const LoginPage = () => {
               Acceder
             </Button>
             <Text textAlign="center" color="gray.400">
-              No tienes cuenta?{" "}
-              <ChakraRouterLink as={RouterLink} to="/register" color="purple.400">
+              ¿No tienes cuenta?{" "}
+              <ChakraRouterLink to="/register" color="purple.400" fontWeight="bold">
                 Regístrate
               </ChakraRouterLink>
             </Text>

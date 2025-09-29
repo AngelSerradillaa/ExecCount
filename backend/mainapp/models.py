@@ -81,7 +81,7 @@ class TipoEjercicio(models.Model):
 class EjercicioRutina(models.Model):
     id = models.AutoField(primary_key=True)
     rutina = models.ForeignKey(Rutina, on_delete=models.CASCADE, related_name='ejercicios')
-    tipo_ejercicio = models.ForeignKey(TipoEjercicio, on_delete=models.PROTECT)
+    tipo_ejercicio = models.ForeignKey(TipoEjercicio, on_delete=models.CASCADE)
     sets = models.PositiveIntegerField()
     repeticiones = models.PositiveIntegerField()
     record_peso = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)

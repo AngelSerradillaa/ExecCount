@@ -9,6 +9,7 @@ import {
   Select,
   createListCollection,
   NumberInput,
+  Field,
 } from "@chakra-ui/react";
 import type { ListCollection } from "@chakra-ui/react";
 import { createEjercicioRutina } from "../../services/routine-exercises";
@@ -107,17 +108,17 @@ export const CreateRutina = ({ rutina, onClose, onEjerciciosChange }: Props) => 
         <Dialog.Positioner>
           <Dialog.Content bgColor="black" boxShadow="lg">
             <Dialog.Header>
-              <Dialog.Title>Ejercicios para {rutina.nombre}</Dialog.Title>
+              <Dialog.Title>Añade ejercicios para la rutina del {rutina.dia}</Dialog.Title>
             </Dialog.Header>
-            <Dialog.Body>
-              <Stack gap={4} w="320px">
+            <Dialog.Body mx={8}>
+              <Stack gap={4} minW="320px" >
                 {ejercicios.map((e) => (
-                  <Text key={e.id}>
-                    {getTipoNombre(e.tipo_ejercicio)} - {e.sets}x{e.repeticiones} ({e.record_peso}kg)
+                  <Text key={e.id} bgColor={"gray.800"} p={2} borderRadius="md" color="white">
+                    Añadido: {getTipoNombre(e.tipo_ejercicio)} - {e.sets}x{e.repeticiones} ({e.record_peso}kg)
                   </Text>
                 ))}
 
-                {ejerciciosCollection.items.length > 0 && (
+                {tipoEjercicios.length > 0 && (
                   <Select.Root
                     collection={ejerciciosCollection}
                     value={[selectedTipo]}
@@ -125,14 +126,14 @@ export const CreateRutina = ({ rutina, onClose, onEjerciciosChange }: Props) => 
                   >
                     <Select.HiddenSelect />
                     <Select.Label>Tipo de ejercicio</Select.Label>
-                    <Select.Control>
+                    <Select.Control maxWidth="230px">
                       <Select.Trigger bgColor="gray.800">
                         <Select.ValueText placeholder="Selecciona un ejercicio" color="white" />
                       </Select.Trigger>
                       <Select.IndicatorGroup>
-                        <Select.Indicator />
+                        <Select.Indicator color={"white"}/>
                       </Select.IndicatorGroup>
-                    </Select.Control>
+                    </Select.Control >
                     <Portal>
                       <Select.Positioner>
                         <Select.Content bgColor="gray.800" zIndex={2000}>
@@ -147,35 +148,40 @@ export const CreateRutina = ({ rutina, onClose, onEjerciciosChange }: Props) => 
                     </Portal>
                   </Select.Root>
                 )}
+                <Field.Root >
+                  <Field.Label>Sets</Field.Label>
+                  <NumberInput.Root value={sets} onValueChange={(d) => setSets(d.value)} w="230px">
+                    <NumberInput.Control />
+                    <NumberInput.Input />
+                  </NumberInput.Root>
+                </Field.Root>
 
-                <NumberInput.Root value={sets} onValueChange={(d) => setSets(d.value)}>
-                  <NumberInput.Label>Sets</NumberInput.Label>
-                  <NumberInput.Control />
-                  <NumberInput.Input />
-                </NumberInput.Root>
+                <Field.Root >
+                  <Field.Label>Repeticiones</Field.Label>
+                  <NumberInput.Root value={reps} onValueChange={(d) => setReps(d.value)} w="230px">
+                    <NumberInput.Control />
+                    <NumberInput.Input />
+                  </NumberInput.Root>
+                </Field.Root>
+                
+                <Field.Root >
+                  <Field.Label>Peso (kg)</Field.Label>
+                  <NumberInput.Root value={peso} onValueChange={(d) => setPeso(d.value)} w="230px">
+                    <NumberInput.Control />
+                    <NumberInput.Input />
+                  </NumberInput.Root>
+                </Field.Root>
 
-                <NumberInput.Root value={reps} onValueChange={(d) => setReps(d.value)}>
-                  <NumberInput.Label>Repeticiones</NumberInput.Label>
-                  <NumberInput.Control />
-                  <NumberInput.Input />
-                </NumberInput.Root>
-
-                <NumberInput.Root value={peso} onValueChange={(d) => setPeso(d.value)}>
-                  <NumberInput.Label>Peso (kg)</NumberInput.Label>
-                  <NumberInput.Control />
-                  <NumberInput.Input />
-                </NumberInput.Root>
-
-                <Button onClick={handleAddEjercicio} colorScheme="green">
+                <Button onClick={handleAddEjercicio} bgColor="brand.500" _hover={{bgColor: "brand.700"}} maxW="130px" mt={3}>
                   Añadir ejercicio
                 </Button>
               </Stack>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button onClick={handleClose} colorScheme="blue">Guardar y salir</Button>
+              <Button onClick={handleClose} bgColor="brand.500" _hover={{bgColor: "brand.700"}}>Guardar y salir</Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" onClick={handleClose} />
+              <CloseButton mr={2} mt={2} color="white" size="sm" bgColor={"red.500"} _hover={{ bgColor: "red.700" }} onClick={handleClose} />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>

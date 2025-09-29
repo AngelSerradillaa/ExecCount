@@ -128,13 +128,20 @@ class AmistadSerializer(serializers.ModelSerializer):
 class PublicacionSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     usuario = serializers.ReadOnlyField(source='usuario.username')
+    liked_by_user = serializers.SerializerMethodField()
 
     class Meta:
         model = Publicacion
-        fields = ['id', 'usuario', 'contenido', 'tipo', 'fecha_creacion', 'likes_count']
+        fields = ['id', 'usuario', 'contenido', 'tipo', 'fecha_creacion', 'likes_count', 'liked_by_user']
 
     def get_likes_count(self, obj):
         return obj.likes.count()
+    
+    def get_liked_by_user(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return obj.likes.filter(usuario=user).exists()
+        return False
 
 class LikeSerializer(serializers.ModelSerializer):
     usuario = serializers.ReadOnlyField(source='usuario.username')

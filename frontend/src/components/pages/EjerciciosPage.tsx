@@ -15,13 +15,14 @@ import {
   Portal,
   CloseButton,
 } from "@chakra-ui/react"
-import { FaDumbbell, FaRunning, FaBiking, FaHeartbeat } from "react-icons/fa"
+import {  FaHeartbeat } from "react-icons/fa"
+import { GiMuscularTorso, GiBiceps, GiLeg, GiMuscleUp } from "react-icons/gi";
 import type { IconType } from "react-icons"
 import { getTipoEjercicios, deleteTipoEjercicio } from "../../services/exercises"
 import { CreateTipoEjercicio } from "../organisms/CreateExercise"
 import { toaster } from "../ui/toasterInstance"
 
-interface Ejercicio {
+export interface Ejercicio {
   id: number
   nombre: string
   descripcion: string
@@ -29,10 +30,12 @@ interface Ejercicio {
 }
 
 const iconosGrupo: Record<string, IconType> = {
-  pecho: FaDumbbell,
-  espalda: FaRunning,
-  piernas: FaBiking,
+  pecho: GiMuscularTorso,
+  brazos: GiBiceps,
+  espalda: GiMuscleUp,
+  piernas: GiLeg,
   cardio: FaHeartbeat,
+  
 }
 
 export const EjerciciosPage = () => {
@@ -87,7 +90,7 @@ export const EjerciciosPage = () => {
     : ejercicios
 
   return (
-    <Flex direction="column" align="center" minH="100vh" px={4} pt={24} w="100%">
+    <Flex direction="column" align="center" minH="100vh" px={4} pt={24} alignContent={"center"}>
       <VStack gap={6} w="full" maxW="1200px" align="center">
         <Heading>Ejercicios</Heading>
 
@@ -96,37 +99,49 @@ export const EjerciciosPage = () => {
 
         {/* Botones de filtro */}
         <HStack gap={3} wrap="wrap" justify="center">
-          <Button onClick={() => setFiltro(null)} colorScheme={!filtro ? "brand" : "gray"}>
+          <Button onClick={() => setFiltro(null)} bgColor={!filtro ? "brand.500" : "#1a1a1a"} _hover={{bgColor: "brand.700"}}>
             Todos
           </Button>
-          <Button onClick={() => setFiltro("Pecho")} colorScheme={filtro === "Pecho" ? "brand" : "gray"}>
+          <Button onClick={() => setFiltro("Pecho")} bgColor={filtro === "Pecho" ? "brand.500" : "#1a1a1a"} _hover={{bgColor: "brand.600"}}>
+            <GiMuscularTorso></GiMuscularTorso>
             Pecho
           </Button>
-          <Button onClick={() => setFiltro("Espalda")} colorScheme={filtro === "Espalda" ? "brand" : "gray"}>
+          <Button onClick={() => setFiltro("Brazos")} bgColor={filtro === "Brazos" ? "brand.500" : "#1a1a1a"} _hover={{bgColor: "brand.600"}}>
+            <GiBiceps></GiBiceps>
+            Brazos
+          </Button>
+          <Button onClick={() => setFiltro("Espalda")} bgColor={filtro === "Espalda" ? "brand.500" : "#1a1a1a"} _hover={{bgColor: "brand.600"}}>
+            <GiMuscleUp />
             Espalda
           </Button>
-          <Button onClick={() => setFiltro("Piernas")} colorScheme={filtro === "Piernas" ? "brand" : "gray"}>
+          <Button onClick={() => setFiltro("Piernas")} bgColor={filtro === "Piernas" ? "brand.500" : "#1a1a1a"} _hover={{bgColor: "brand.600"}}>
+            <GiLeg></GiLeg>
             Piernas
           </Button>
-          <Button onClick={() => setFiltro("Cardio")} colorScheme={filtro === "Cardio" ? "brand" : "gray"}>
+          <Button onClick={() => setFiltro("Cardio")} bgColor={filtro === "Cardio" ? "brand.500" : "#1a1a1a"} _hover={{bgColor: "brand.600"}}>
+            <FaHeartbeat></FaHeartbeat>
             Cardio
           </Button>
         </HStack>
 
         {/* Grid de ejercicios */}
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} gap={6} w="full">
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} gap={6} w="full">
           {ejerciciosFiltrados.map((ej) => (
             <Box
               key={ej.id}
               p={5}
               borderWidth="1px"
-              borderRadius="2xl"
+              borderRadius="xl"
               shadow="md"
-              textAlign="center"
               bg="gray.800"
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-between"
+              minH="300px"
             >
+              <Box textAlign="center">
               <Icon
-                as={iconosGrupo[ej.grupo_muscular] || FaDumbbell}
+                as={iconosGrupo[ej.grupo_muscular] || FaHeartbeat}
                 boxSize={8}
                 mb={3}
                 color="brand.500"
@@ -137,10 +152,11 @@ export const EjerciciosPage = () => {
               <Text mt={2} color="gray.400">
                 {ej.descripcion}
               </Text>
+              </Box>
               <Button
                 mt={4}
                 size="sm"
-                colorScheme="red"
+                bgColor={"red.500"} _hover={{ bgColor: "red.700" }}
                 onClick={() => {
                   setSelectedEjercicio(ej)
                   setOpenDialog(true)
@@ -158,26 +174,28 @@ export const EjerciciosPage = () => {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content bg="black" borderRadius="lg" p={6}>
+            <Dialog.Content bg="black" borderRadius="lg" boxShadow="lg">
               <Dialog.Header>
-                <Heading size="md" color="white">
+                <Dialog.Title>
                   ¿Eliminar ejercicio?
-                </Heading>
+                </Dialog.Title>
               </Dialog.Header>
-              <Dialog.Body>
-                <Text color="gray.300">
+              <Dialog.Body mx={8}>
+                <Text color="white" fontWeight={"medium"}>
                   {selectedEjercicio
                     ? `¿Seguro que quieres eliminar "${selectedEjercicio.nombre}"? Esta acción no se puede deshacer.`
                     : ""}
                 </Text>
               </Dialog.Body>
-              <Dialog.Footer>
+              <Dialog.Footer mr={6} mb={4}>
                 <HStack justify="flex-end" gap={3}>
-                  <Button onClick={() => setOpenDialog(false)} variant="outline">
+                  <Button onClick={() => setOpenDialog(false)} variant="outline"
+                    bgColor="red.500" _hover={{ bgColor: "red.700" }}
+                    color={"white"}>
                     Cancelar
                   </Button>
                   <Button
-                    colorScheme="red"
+                    bgColor="brand.500" _hover={{ bgColor: "brand.700" }}
                     onClick={handleDelete}
                     loading={loadingDelete}
                   >
@@ -186,7 +204,7 @@ export const EjerciciosPage = () => {
                 </HStack>
               </Dialog.Footer>
               <Dialog.CloseTrigger asChild>
-                <CloseButton />
+                <CloseButton mr={2} mt={2} color="white" size="sm" bgColor={"red.500"} _hover={{ bgColor: "red.700" }}/>
               </Dialog.CloseTrigger>
             </Dialog.Content>
           </Dialog.Positioner>

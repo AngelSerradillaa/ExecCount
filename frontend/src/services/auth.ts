@@ -42,7 +42,6 @@ export const registerUser = async (data: RegisterData) => {
 
 export const logoutUser = async () => {
   const token = localStorage.getItem("authToken");
-  console.log("Token para logout:", token);
   try {
     
     await axios.post(

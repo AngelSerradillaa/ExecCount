@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import { createRutina } from "../../services/routines";
 import type { Rutina } from "../../services/routines";
 import { toaster } from "../ui/toasterInstance";
@@ -34,8 +34,10 @@ export const CreateRutinaButton = ({ dia, onCreated }: Props) => {
   };
 
   return (
-    <Button size="sm" colorScheme="blue" onClick={handleCrear} loading={loading}>
-      Crear rutina
-    </Button>
+    <Flex justify="center" mt={4}>
+      <Button size="sm" bgColor={"brand.500"} _hover={{ bgColor: "brand.800" }} onClick={handleCrear} loading={loading}>
+        Crear rutina
+      </Button>
+    </Flex>
   );
 };

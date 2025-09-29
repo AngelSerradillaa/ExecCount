@@ -184,7 +184,7 @@ export const PerfilPage = () => {
   }
 
   return (
-    <Flex justify="center" align="center" minH="80vh" p={4}>
+    <Flex justify="center" align="center" minH="80vh" p={4} mt={6}>
       <Box
         w={{ base: "100%", sm: "90%", md: "500px" }}
         bg="gray.800"
@@ -202,7 +202,7 @@ export const PerfilPage = () => {
               Perfil
             </Tabs.Trigger>
             <Tabs.Trigger value="amistades" px={4} py={2}
-            _selected={{ color: "brand.500", bg: "transparent", borderBottom: "2px solid", borderColor: "brand.500"}}>
+            _selected={{ color: "brand.500", bg: "transparent", borderBottom: "2px solid", borderColor: "brand.500"}} data-testid="tab-amistades">
               <FaUserFriends />
               Amistades
             </Tabs.Trigger>
@@ -270,19 +270,23 @@ export const PerfilPage = () => {
               <Heading size="lg" textAlign="center" mb={6}>
                 Lista de amigos
               </Heading>
-
+              
               <Stack gap={4}>
-                <Flex as="form" onSubmit={(e) => { e.preventDefault(); handleAgregarAmigo(); }}>
+                <form data-testid="amigos-form" onSubmit={(e) => { e.preventDefault(); handleAgregarAmigo(); }}>
+                <Flex >
                   <Input
                     placeholder="Introduce email o usuario"
                     value={nuevoAmigo}
                     onChange={(e) => setNuevoAmigo(e.target.value)}
                     bg="gray.700"
+                    data-testid="input-agregar-amigo"
                   />
-                  <Button ml={2} type="submit" bgColor={"brand.500"} _hover={{ bgColor: "brand.800" }}>
+                  <Button ml={2} type="submit" bgColor={"brand.500"} _hover={{ bgColor: "brand.800" }} data-testid="btn-agregar-amigo">
                     Enviar
                   </Button>
                 </Flex>
+                </form>
+                
 
                 {amistades.length === 0 ? (
                   <Text>No tienes amistades todavía.</Text>
@@ -313,15 +317,19 @@ export const PerfilPage = () => {
                           <Flex gap={2}>
                             <Button
                               size="sm"
-                              colorScheme="green"
+                              bgColor="brand.500"
+                              _hover={{ bgColor: "brand.700" }}
                               onClick={() => handleActualizarAmistad(a.id, "aceptada")}
+                              data-testid={`btn-aceptar-${a.id}`}
                             >
                               Aceptar
                             </Button>
                             <Button
                               size="sm"
-                              colorScheme="red"
+                              bgColor="red.500"
+                              _hover={{ bgColor: "red.600" }}
                               onClick={() => handleActualizarAmistad(a.id, "rechazada")}
+                              data-testid={`btn-rechazar-${a.id}`}
                             >
                               Rechazar
                             </Button>
@@ -332,6 +340,7 @@ export const PerfilPage = () => {
                             colorScheme="red"
                             onClick={() => handleEliminarAmigo(a.id)}
                             bgColor={"red.500"} _hover={{ bgColor: "red.600" }}
+                            data-testid={`btn-eliminar-${a.id}`}
                           >
                             Eliminar amigo
                           </Button>
